@@ -1,5 +1,5 @@
 import { LockFilled, LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Form, Input, Layout, Space } from "antd";
+import { Button, Card, Checkbox, Flex, Form, Input, Layout, Space } from "antd";
 import { Link } from "react-router-dom";
 
 const LoginPage = () => {
@@ -39,22 +39,52 @@ const LoginPage = () => {
             </Space>
           }
         >
-          <Form>
-            <Form.Item name="username">
+          <Form
+            initialValues={{
+              username: "admin@pizzashop.com",
+              password: "Admin@12345",
+              remember: true,
+            }}
+          >
+            <Form.Item
+              name="username"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your username",
+                },
+                {
+                  type: "email",
+                  message: "Email is not valid",
+                },
+              ]}
+            >
               <Input prefix={<UserOutlined />} placeholder="Username" />
             </Form.Item>
 
-            <Form.Item name="password">
+            <Form.Item
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your password",
+                },
+              ]}
+            >
               <Input.Password
                 prefix={<LockOutlined />}
                 placeholder="Password"
               />
             </Form.Item>
 
-            <Form.Item name="remember">
-              <Checkbox>Remember me</Checkbox>
-              <Link to="/auth/forgot-password">Forgot password</Link>
-            </Form.Item>
+            <Flex justify="space-between">
+              <Form.Item name="remember" valuePropName="checked">
+                <Checkbox>Remember me</Checkbox>
+              </Form.Item>
+              <Link id="login-form-forgot" to="/auth/forgot-password">
+                Forgot password
+              </Link>
+            </Flex>
 
             <Form.Item>
               <Button
