@@ -13,6 +13,7 @@ import {
 } from "antd";
 import { Link } from "react-router-dom";
 import { login, self } from "../../http/api";
+import { useAuthStore } from "../../store";
 import type { Credentials } from "../../types";
 
 const loginUser = async (userData: Credentials) => {
@@ -26,8 +27,10 @@ const getSelf = async () => {
 };
 
 const LoginPage = () => {
+  const { setUser } = useAuthStore();
+
   // get self data
-  const { data: selfData, refetch } = useQuery({
+  const { refetch } = useQuery({
     queryKey: ["self"],
     queryFn: getSelf,
     enabled: false,
@@ -43,12 +46,11 @@ const LoginPage = () => {
     mutationKey: ["login"],
     mutationFn: loginUser,
     onSuccess: async () => {
-      console.log("login successfull");
-
       // get self data
-      refetch();
+      const selfDataPromise = await refetch();
 
-      console.log("self data", selfData);
+      // store in the state
+      setUser(selfDataPromise.data);
     },
   });
   return (
