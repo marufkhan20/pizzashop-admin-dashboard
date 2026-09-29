@@ -1,5 +1,5 @@
 import { LockFilled, LockOutlined, UserOutlined } from "@ant-design/icons";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Alert,
   Button,
@@ -12,7 +12,7 @@ import {
   Space,
 } from "antd";
 import { Link } from "react-router-dom";
-import { login } from "../../http/api";
+import { login, self } from "../../http/api";
 import type { Credentials } from "../../types";
 
 const loginUser = async (userData: Credentials) => {
@@ -20,7 +20,20 @@ const loginUser = async (userData: Credentials) => {
   return data;
 };
 
+const getSelf = async () => {
+  const { data } = await self();
+  return data;
+};
+
 const LoginPage = () => {
+  // get self data
+  const { data: selfData, refetch } = useQuery({
+    queryKey: ["self"],
+    queryFn: getSelf,
+    enabled: false,
+  });
+
+  // login handler
   const {
     mutate: loginHandler,
     isPending,
@@ -31,6 +44,11 @@ const LoginPage = () => {
     mutationFn: loginUser,
     onSuccess: async () => {
       console.log("login successfull");
+
+      // get self data
+      refetch();
+
+      console.log("self data", selfData);
     },
   });
   return (
