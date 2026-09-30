@@ -12,7 +12,8 @@ import {
   Space,
 } from "antd";
 import { Link } from "react-router-dom";
-import { login, self } from "../../http/api";
+import { usePermission } from "../../hooks/usePermission";
+import { login, logout, self } from "../../http/api";
 import { useAuthStore } from "../../store";
 import type { Credentials } from "../../types";
 
@@ -27,7 +28,8 @@ const getSelf = async () => {
 };
 
 const LoginPage = () => {
-  const { setUser } = useAuthStore();
+  const { isAllowed } = usePermission();
+  const { setUser, logout: logoutFromStore } = useAuthStore();
 
   // get self data
   const { refetch } = useQuery({
@@ -47,10 +49,18 @@ const LoginPage = () => {
     mutationFn: loginUser,
     onSuccess: async () => {
       // get self data
-      const selfDataPromise = await refetch();
+      const { data } = await refetch();
+
+      // if user role is customer then logout the user
+      if (!isAllowed(data)) {
+        logout();
+
+        logoutFromStore();
+        return;
+      }
 
       // store in the state
-      setUser(selfDataPromise.data);
+      setUser(data);
     },
   });
   return (
